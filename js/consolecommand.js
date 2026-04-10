@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const promptElement = document.getElementById('prompt');
     const separator = document.getElementById('separator');
 
-    // Afficher un message de bienvenue à l'arrivée
-    printOutput('Welcome to the Web Console!\nType "help" to obtain the list of supported commands.\nType "help[command_name]" to obtain information about what the command does.');
+    // Welcome message on load
+    printOutput('Welcome to the Web Console!\nType "help" to obtain the list of supported commands.\nType "help[command_name]" for detailed info.');
 
-    // Empêcher la sélection du texte et masquer le curseur
+    // Disable selection and hide cursor for immersion
     document.body.style.userSelect = 'none';
     document.body.style.cursor = 'none';
 
@@ -20,50 +20,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             executeCommand(command);
-            inputField.value = '';  // Clear the input field
+            inputField.value = ''; 
         }
     });
 
     function executeCommand(command) {
-        if (command.trim() === '') {
-            return;
-        }
+        if (command.trim() === '') return;
 
+        // Display the user input in the console
         const outputLine = document.createElement('div');
         outputLine.textContent = `user@web:~$ ${command}`;
         outputLine.classList.add('dynamic-text-color');
         consoleOutput.appendChild(outputLine);
 
-        if (command.toLowerCase() === 'help') {
-            printOutput('Available commands:\n- help\n- clear\n- color[txt/line][hex]/known_color');
-        } else if (command.toLowerCase().startsWith('help[') && command.endsWith(']')) {
-            const commandName = command.slice(5, -1).toLowerCase();
+        const lowerCmd = command.toLowerCase().trim();
+        const args = lowerCmd.split(' ');
+
+        // Command Logic
+        if (lowerCmd === 'help') {
+            printOutput('Available commands:\n- help\n- clear\n- date\n- echo [text]\n- whoami\n- color [txt/line] [hex/color_name]');
+        } 
+        else if (lowerCmd.startsWith('help[') && lowerCmd.endsWith(']')) {
+            const commandName = lowerCmd.slice(5, -1);
             showCommandHelp(commandName);
-        } else if (command.toLowerCase() === 'clear') {
+        } 
+        else if (lowerCmd === 'clear') {
             consoleOutput.innerHTML = '';
-        } else if (command.toLowerCase().startsWith('color')) {
-            const parts = command.split(' ');
-            if (parts.length < 2) {
-                printOutput('Error: Command format should be color[mot] [hex|color].');
+        } 
+        else if (lowerCmd === 'date') {
+            printOutput(new Date().toLocaleString());
+        }
+        else if (lowerCmd.startsWith('echo ')) {
+            // substring(5) to get everything after "echo "
+            printOutput(command.substring(5));
+        }
+        else if (lowerCmd === 'whoami') {
+            printOutput('User: guest@web-console\nStatus: Learning JavaScript Master\nPermissions: Developer');
+        }
+        else if (args[0] === 'color') {
+            if (args.length < 3) {
+                printOutput('Error: Format should be "color [txt/line] [value]".');
                 return;
             }
-            const type = parts[0].split('[')[1].split(']')[0];
-            const colorValue = parts[1];
+            const type = args[1];
+            const colorValue = args[2];
+
             if (['txt', 'line'].includes(type)) {
                 if (isValidColor(colorValue)) {
                     changeColor(type, colorValue);
                     printOutput(`Console ${type} color changed to: ${colorValue}`);
                 } else {
-                    printOutput(`Invalid color value: ${colorValue}. Please use a valid hex code or known color.`);
+                    printOutput(`Invalid color: ${colorValue}. Use hex (e.g., 00ff00) or known color names.`);
                 }
             } else {
-                printOutput(`Unknown type: ${type}. Use 'txt' or 'line'.`);
+                printOutput(`Unknown type: ${type}. Use "txt" or "line".`);
             }
-        } else {
+        } 
+        else {
             printOutput(`Command not found: ${command}`);
         }
 
-        // Scroll to the bottom of the console
+        // Auto-scroll to bottom
         consoleOutput.scrollTop = consoleOutput.scrollHeight;
     }
 
@@ -82,20 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function changeColor(type, color) {
         const colorMapping = {
-            'rouge': '#FF0000',
-            'vert': '#00FF00',
-            'bleu': '#0000FF',
-            'violet': '#800080',
-            'jaune': '#FFFF00',
-            'orange': '#FFA500',
-            'blanc': '#FFFFFF'
+            'rouge': '#FF0000', 'vert': '#00FF00', 'bleu': '#0000FF',
+            'violet': '#800080', 'jaune': '#FFFF00', 'orange': '#FFA500', 'blanc': '#FFFFFF'
         };
         const newColor = colorMapping[color] || `#${color}`;
+        
         if (type === 'txt') {
             consoleContainer.style.setProperty('--text-color', newColor);
-            document.querySelectorAll('.dynamic-text-color').forEach(element => {
-                element.style.color = newColor;
-            });
+            document.querySelectorAll('.dynamic-text-color').forEach(el => el.style.color = newColor);
             promptElement.style.color = newColor;
             inputField.style.color = newColor;
         } else if (type === 'line') {
@@ -107,15 +118,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showCommandHelp(command) {
         const helpText = {
-            'help': 'help: Displays the command list.\nhelp[command_name]: Displays information about the specified command.',
+            'help': 'help: Displays the command list.',
             'clear': 'clear: Clears the console screen.',
-            'color': 'color [txt|line] [hex|color]: Changes the console text or border color. [txt] affects text color, [line] affects borders. Use hex color code or known color names (rouge, vert, bleu, violet, jaune, orange, blanc).'
+            'date': 'date: Displays the current date and time.',
+            'echo': 'echo [text]: Prints the specified text back to the console.',
+            'whoami': 'whoami: Displays information about the current user.',
+            'color': 'color [txt/line] [value]: Changes colors. Use "txt" for text or "line" for borders. Value can be a name (rouge, vert...) or a hex code.'
         };
-
-        if (helpText[command]) {
-            printOutput(helpText[command]);
-        } else {
-            printOutput(`No help available for the command: ${command}`);
-        }
+        printOutput(helpText[command] || `No help available for: ${command}`);
     }
 });
