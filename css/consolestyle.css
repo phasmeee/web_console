@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+    color: #0f0;
+    font-family: 'Courier New', Courier, monospace;
+    user-select: none; /* Empêche la sélection du texte */
+    cursor: none; /* Cache le curseur de la souris */
+}
+
+#console-container {
+    width: 80%;
+    max-width: 800px;
+    background-color: #000;
+    border: 1px solid var(--text-color, #0f0);
+    padding: 20px;
+    box-sizing: border-box;
+    transition: border-color 1s ease-in-out;
+}
+
+#console-output {
+    height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    border-bottom: 1px solid var(--text-color, #0f0);
+    transition: color 1s ease-in-out, border-color 1s ease-in-out;
+}
+
+#separator {
+    border: none;
+    border-bottom: 1px solid var(--text-color, #0f0);
+    margin: 10px 0;
+    transition: border-color 1s ease-in-out;
+}
+
+#console-input {
+    display: flex;
+    align-items: center;
+}
+
+#prompt {
+    margin-right: 5px;
+    transition: color 1s ease-in-out;
+}
+
+#command-input {
+    background-color: transparent;
+    color: var(--text-color, #0f0);
+    border: none;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+    font-size: 16px;
+    transition: color 1s ease-in-out;
+    overflow-wrap: break-word; /* Permet la coupure des mots longs */
+}
+
+#command-input::placeholder {
+    color: var(--text-color, #0f0);
+    opacity: 0.5;
+    transition: color 1s ease-in-out;
+}
+
+/* Dégradé dynamique pour la console */
+#console-container.dynamic-color #console-input {
+    background-color: transparent; /* Assure que le fond de l'input reste noir */
+}
+
+.dynamic-text-color {
+    color: var(--text-color) !important;
+    transition: color 1s ease-in-out;
+}
